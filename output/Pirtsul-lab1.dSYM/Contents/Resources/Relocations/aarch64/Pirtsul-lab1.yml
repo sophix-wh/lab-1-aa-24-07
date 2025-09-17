@@ -1,0 +1,5 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     '/Users/sofiapirtsul/lab-1-aa-24-07/output/Pirtsul-lab1'
+relocations:     []
+...
