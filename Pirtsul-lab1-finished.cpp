@@ -20,28 +20,28 @@ struct Compress {
     bool working;
 };
 
-// Функция для очистки буфера ввода
+// очистка буфера ввода
 void clearInputBuffer() {
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 }
 
-// Функция для проверки, создана ли труба
+// проверка создана ли труба
 bool isPipeCreated(const Pipe& pipe) {
     return !pipe.name.empty() || pipe.length != -1 || pipe.diameter != -1;
 }
 
-// Функция для проверки, создана ли станция
+// проверка создана ли станция
 bool isStationCreated(const Compress& compstation) {
     return !compstation.name.empty() || compstation.count != -1 ||
         compstation.count_working != -1 || !compstation.classification.empty();
 }
 
-// Функция для проверки, есть ли какие-либо данные
+// проверка есть ли данные
 bool hasData(const Pipe& pipe, const Compress& compstation) {
     return isPipeCreated(pipe) || isStationCreated(compstation);
 }
 
-// 1. Функция для ввода данных трубы с консоли
+// ввод данных трубы с консоли
 void readPipeFromConsole(Pipe& pipe) {
     cout << "Введите название трубы: ";
     clearInputBuffer();
@@ -77,7 +77,7 @@ void readPipeFromConsole(Pipe& pipe) {
     cout << "Труба '" << pipe.name << "' успешно создана!\n";
 }
 
-// 2. Функция для вывода данных трубы
+// вывод данных трубы
 void printPipe(const Pipe& pipe) {
     cout << "\nПараметры трубы:\n";
     cout << "Название: " << (pipe.name.empty() ? "неизвестно" : pipe.name) << "\n";
@@ -86,7 +86,7 @@ void printPipe(const Pipe& pipe) {
     cout << "В ремонте: " << (pipe.repair ? "да" : "нет") << "\n";
 }
 
-// 3. Функция для редактирования статуса ремонта трубы
+// редактирование статуса ремонта трубы
 void editPipeRepair(Pipe& pipe) {
     if (!isPipeCreated(pipe)) {
         cout << "Ошибка! Сначала создайте трубу.\n";
@@ -109,7 +109,7 @@ void editPipeRepair(Pipe& pipe) {
         << (pipe.repair ? "в ремонте" : "работает") << "\n";
 }
 
-// 4. Функция для запуска цеха (увеличение работающих цехов)
+// увеличение работающих цехов
 void startWorkshop(Compress& compstation) {
     if (!isStationCreated(compstation)) {
         cout << "Ошибка! Сначала создайте компрессорную станцию.\n";
@@ -136,7 +136,7 @@ void startWorkshop(Compress& compstation) {
     }
 }
 
-// 5. Функция для остановки цеха (уменьшение работающих цехов)
+// уменьшение работающих цехов
 void stopWorkshop(Compress& compstation) {
     if (!isStationCreated(compstation)) {
         cout << "Ошибка! Сначала создайте компрессорную станцию.\n";
@@ -155,7 +155,7 @@ void stopWorkshop(Compress& compstation) {
     }
 }
 
-// Функция для добавления компрессорной станции
+// добавление компрессорной станции
 void addCompressorStation(Compress& compstation) {
     cout << "Введите название компрессорной станции: ";
     clearInputBuffer();
@@ -195,7 +195,7 @@ void addCompressorStation(Compress& compstation) {
     cout << "Компрессорная станция '" << compstation.name << "' успешно создана!\n";
 }
 
-// Функция для показа всех объектов
+// показ всех объектов
 void showAllObjects(const Pipe& pipe, const Compress& compstation) {
     if (!hasData(pipe, compstation)) {
         cout << "Данные отсутствуют. Пожалуйста, сначала добавьте трубы или компрессорные станции.\n";
@@ -212,7 +212,7 @@ void showAllObjects(const Pipe& pipe, const Compress& compstation) {
     }
 }
 
-// Функция для редактирования цехов компрессорной станции
+// редактирование цехов компрессорной станции
 void editCompressorStationWorkshops(Compress& compstation) {
     if (!isStationCreated(compstation)) {
         cout << "Ошибка! Сначала создайте компрессорную станцию.\n";
@@ -234,7 +234,7 @@ void editCompressorStationWorkshops(Compress& compstation) {
     }
 }
 
-// 7. Функция для загрузки данных из файла
+// загрузка данных из файла
 void loadFromFile(Pipe& pipe, Compress& compstation) {
     ifstream file("mydata.txt");
     if (!file.is_open()) {
@@ -350,7 +350,7 @@ void loadFromFile(Pipe& pipe, Compress& compstation) {
     cout << "Данные успешно загружены из файла 'mydata.txt'\n";
 }
 
-// Функция для сохранения данных в файл
+// сохранение данных в файл
 void saveToFile(const Pipe& pipe, const Compress& compstation) {
     ofstream file("mydata.txt");
     if (!file.is_open()) {
