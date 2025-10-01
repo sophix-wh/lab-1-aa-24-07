@@ -20,27 +20,28 @@ struct Compress {
     bool working;
 };
 
+// Функция для очистки буфера ввода
 void clearInputBuffer() {
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 }
 
-// проверяю создана ли труба
+// Функция для проверки, создана ли труба
 bool isPipeCreated(const Pipe& pipe) {
     return !pipe.name.empty() || pipe.length != -1 || pipe.diameter != -1;
 }
 
-// проверяю создана ли труба
+// Функция для проверки, создана ли станция
 bool isStationCreated(const Compress& compstation) {
     return !compstation.name.empty() || compstation.count != -1 ||
         compstation.count_working != -1 || !compstation.classification.empty();
 }
 
-// есть ли данные
+// Функция для проверки, есть ли какие-либо данные
 bool hasData(const Pipe& pipe, const Compress& compstation) {
     return isPipeCreated(pipe) || isStationCreated(compstation);
 }
 
-// ввод данных трубы с консоли
+// 1. Функция для ввода данных трубы с консоли
 void readPipeFromConsole(Pipe& pipe) {
     cout << "Введите название трубы: ";
     clearInputBuffer();
@@ -76,7 +77,7 @@ void readPipeFromConsole(Pipe& pipe) {
     cout << "Труба '" << pipe.name << "' успешно создана!\n";
 }
 
-// вывод данных трубы
+// 2. Функция для вывода данных трубы
 void printPipe(const Pipe& pipe) {
     cout << "\nПараметры трубы:\n";
     cout << "Название: " << (pipe.name.empty() ? "неизвестно" : pipe.name) << "\n";
@@ -85,7 +86,7 @@ void printPipe(const Pipe& pipe) {
     cout << "В ремонте: " << (pipe.repair ? "да" : "нет") << "\n";
 }
 
-// редактирование статуса ремонта трубы
+// 3. Функция для редактирования статуса ремонта трубы
 void editPipeRepair(Pipe& pipe) {
     if (!isPipeCreated(pipe)) {
         cout << "Ошибка! Сначала создайте трубу.\n";
@@ -108,7 +109,7 @@ void editPipeRepair(Pipe& pipe) {
         << (pipe.repair ? "в ремонте" : "работает") << "\n";
 }
 
-// увеличение работающих цехов
+// 4. Функция для запуска цеха (увеличение работающих цехов)
 void startWorkshop(Compress& compstation) {
     if (!isStationCreated(compstation)) {
         cout << "Ошибка! Сначала создайте компрессорную станцию.\n";
@@ -135,7 +136,7 @@ void startWorkshop(Compress& compstation) {
     }
 }
 
-// уменьшение работающих цехов
+// 5. Функция для остановки цеха (уменьшение работающих цехов)
 void stopWorkshop(Compress& compstation) {
     if (!isStationCreated(compstation)) {
         cout << "Ошибка! Сначала создайте компрессорную станцию.\n";
@@ -154,7 +155,7 @@ void stopWorkshop(Compress& compstation) {
     }
 }
 
-// добавление компрессорной станции
+// Функция для добавления компрессорной станции
 void addCompressorStation(Compress& compstation) {
     cout << "Введите название компрессорной станции: ";
     clearInputBuffer();
@@ -162,14 +163,8 @@ void addCompressorStation(Compress& compstation) {
 
     cout << "Введите количество цехов: ";
     cin >> compstation.count;
-    while (cin.fail() || compstation.count <= 0) {  // Изменено: <= 0 вместо < 0
-        if (cin.fail()) {
-            cout << "Ошибка! Введите корректное положительное число: ";
-        } else if (compstation.count == 0) {
-            cout << "Ошибка! На станции не может быть 0 цехов. Введите положительное число: ";
-        } else {
-            cout << "Ошибка! Введите корректное положительное число: ";
-        }
+    while (cin.fail() || compstation.count < 0) {
+        cout << "Ошибка! Введите корректное положительное число: ";
         cin.clear();
         clearInputBuffer();
         cin >> compstation.count;
@@ -200,7 +195,7 @@ void addCompressorStation(Compress& compstation) {
     cout << "Компрессорная станция '" << compstation.name << "' успешно создана!\n";
 }
 
-// показ всех объектов
+// Функция для показа всех объектов
 void showAllObjects(const Pipe& pipe, const Compress& compstation) {
     if (!hasData(pipe, compstation)) {
         cout << "Данные отсутствуют. Пожалуйста, сначала добавьте трубы или компрессорные станции.\n";
@@ -217,7 +212,7 @@ void showAllObjects(const Pipe& pipe, const Compress& compstation) {
     }
 }
 
-// редактирование цехов компрессорной станции
+// Функция для редактирования цехов компрессорной станции
 void editCompressorStationWorkshops(Compress& compstation) {
     if (!isStationCreated(compstation)) {
         cout << "Ошибка! Сначала создайте компрессорную станцию.\n";
@@ -239,7 +234,7 @@ void editCompressorStationWorkshops(Compress& compstation) {
     }
 }
 
-// загрузка данных из файла
+// 7. Функция для загрузки данных из файла
 void loadFromFile(Pipe& pipe, Compress& compstation) {
     ifstream file("mydata.txt");
     if (!file.is_open()) {
@@ -258,54 +253,95 @@ void loadFromFile(Pipe& pipe, Compress& compstation) {
         if (line.empty()) continue;
         if (line == "Параметры трубы:") {
             currentSection = "pipe";
+            continue;
         }
         else if (line == "Параметры компрессорной станции:") {
             currentSection = "station";
+            continue;
         }
-        else if (line.find("Название: ") != string::npos) {
-            string name = line.substr(10);
-            if (name != "неизвестно") {
-                if (currentSection == "pipe") pipe.name = name;
-                else compstation.name = name;
+
+        if (currentSection == "pipe") {
+            if (line.find("Название: ") != string::npos) {
+                string name = line.substr(10);
+                if (name != "неизвестно") {
+                    pipe.name = name;
+                }
             }
-        }
-        else if (line.find("Длина: ") != string::npos) {
-            string lengthStr = line.substr(7);
-            if (lengthStr != "неизвестно") {
-                pipe.length = stof(lengthStr.substr(0, lengthStr.find(" км")));
+            else if (line.find("Длина: ") != string::npos) {
+                string lengthStr = line.substr(7);
+                if (lengthStr != "неизвестно") {
+                    // Убираем " км" из строки
+                    size_t pos = lengthStr.find(" км");
+                    if (pos != string::npos) {
+                        lengthStr = lengthStr.substr(0, pos);
+                    }
+                    try {
+                        pipe.length = stof(lengthStr);
+                    }
+                    catch (const exception& e) {
+                        pipe.length = -1;
+                    }
+                }
             }
-        }
-        else if (line.find("Диаметр: ") != string::npos) {
-            string diameterStr = line.substr(9);
-            if (diameterStr != "неизвестно") {
-                pipe.diameter = stoi(diameterStr.substr(0, diameterStr.find(" мм")));
+            else if (line.find("Диаметр: ") != string::npos) {
+                string diameterStr = line.substr(9);
+                if (diameterStr != "неизвестно") {
+                    // Убираем " мм" из строки
+                    size_t pos = diameterStr.find(" мм");
+                    if (pos != string::npos) {
+                        diameterStr = diameterStr.substr(0, pos);
+                    }
+                    try {
+                        pipe.diameter = stoi(diameterStr);
+                    }
+                    catch (const exception& e) {
+                        pipe.diameter = -1;
+                    }
+                }
             }
-        }
-        else if (line.find("В ремонте: ") != string::npos) {
-            string status = line.substr(11);
-            if (currentSection == "pipe") {
+            else if (line.find("В ремонте: ") != string::npos) {
+                string status = line.substr(11);
                 pipe.repair = (status == "да");
             }
-            else {
+        }
+        else if (currentSection == "station") {
+            if (line.find("Название: ") != string::npos) {
+                string name = line.substr(10);
+                if (name != "неизвестно") {
+                    compstation.name = name;
+                }
+            }
+            else if (line.find("Количество цехов: ") != string::npos) {
+                string countStr = line.substr(18);
+                if (countStr != "неизвестно") {
+                    try {
+                        compstation.count = stoi(countStr);
+                    }
+                    catch (const exception& e) {
+                        compstation.count = -1;
+                    }
+                }
+            }
+            else if (line.find("Количество работающих цехов: ") != string::npos) {
+                string countStr = line.substr(29);
+                if (countStr != "неизвестно") {
+                    try {
+                        compstation.count_working = stoi(countStr);
+                    }
+                    catch (const exception& e) {
+                        compstation.count_working = -1;
+                    }
+                }
+            }
+            else if (line.find("Классификация: ") != string::npos) {
+                string classification = line.substr(15);
+                if (classification != "неизвестно") {
+                    compstation.classification = classification;
+                }
+            }
+            else if (line.find("В ремонте: ") != string::npos) {
+                string status = line.substr(11);
                 compstation.working = (status == "да");
-            }
-        }
-        else if (line.find("Количество цехов: ") != string::npos) {
-            string countStr = line.substr(18);
-            if (countStr != "неизвестно") {
-                compstation.count = stoi(countStr);
-            }
-        }
-        else if (line.find("Количество работающих цехов: ") != string::npos) {
-            string countStr = line.substr(29);
-            if (countStr != "неизвестно") {
-                compstation.count_working = stoi(countStr);
-            }
-        }
-        else if (line.find("Классификация: ") != string::npos) {
-            string classification = line.substr(15);
-            if (classification != "неизвестно") {
-                compstation.classification = classification;
             }
         }
     }
@@ -314,7 +350,7 @@ void loadFromFile(Pipe& pipe, Compress& compstation) {
     cout << "Данные успешно загружены из файла 'mydata.txt'\n";
 }
 
-// сохранение данных в файл
+// Функция для сохранения данных в файл
 void saveToFile(const Pipe& pipe, const Compress& compstation) {
     ofstream file("mydata.txt");
     if (!file.is_open()) {
@@ -322,32 +358,30 @@ void saveToFile(const Pipe& pipe, const Compress& compstation) {
         return;
     }
 
-    if (file.is_open()) {
-        if (!hasData(pipe, compstation)) {
-            file << "Данные еще не были добавлены.\n";
-            cout << "Файл создан, но данные еще не добавлены.\n";
-        }
-        else {
-            file << "Параметры трубы:\n";
-            file << "Название: " << (pipe.name.empty() ? "неизвестно" : pipe.name) << "\n";
-            file << "Длина: " << (pipe.length == -1 ? "неизвестно" : to_string(pipe.length) + " км") << "\n";
-            file << "Диаметр: " << (pipe.diameter == -1 ? "неизвестно" : to_string(pipe.diameter) + " мм") << "\n";
-            file << "В ремонте: " << (pipe.repair ? "да" : "нет") << "\n";
+    if (hasData(pipe, compstation)) {
+        // Данные трубы
+        file << "Параметры трубы:\n";
+        file << "Название: " << (pipe.name.empty() ? "неизвестно" : pipe.name) << "\n";
+        file << "Длина: " << (pipe.length == -1 ? "неизвестно" : to_string(pipe.length)) << " км\n";
+        file << "Диаметр: " << (pipe.diameter == -1 ? "неизвестно" : to_string(pipe.diameter)) << " мм\n";
+        file << "В ремонте: " << (pipe.repair ? "да" : "нет") << "\n\n";
 
-            file << "\nПараметры компрессорной станции:\n";
-            file << "Название: " << (compstation.name.empty() ? "неизвестно" : compstation.name) << "\n";
-            file << "Количество цехов: " << (compstation.count == -1 ? "неизвестно" : to_string(compstation.count)) << "\n";
-            file << "Количество работающих цехов: " << (compstation.count_working == -1 ? "неизвестно" : to_string(compstation.count_working)) << "\n";
-            file << "Классификация: " << (compstation.classification.empty() ? "неизвестно" : compstation.classification) << "\n";
-            file << "В ремонте: " << (compstation.working ? "да" : "нет") << "\n";
+        // Данные компрессорной станции
+        file << "Параметры компрессорной станции:\n";
+        file << "Название: " << (compstation.name.empty() ? "неизвестно" : compstation.name) << "\n";
+        file << "Количество цехов: " << (compstation.count == -1 ? "неизвестно" : to_string(compstation.count)) << "\n";
+        file << "Количество работающих цехов: " << (compstation.count_working == -1 ? "неизвестно" : to_string(compstation.count_working)) << "\n";
+        file << "Классификация: " << (compstation.classification.empty() ? "неизвестно" : compstation.classification) << "\n";
+        file << "В ремонте: " << (compstation.working ? "да" : "нет") << "\n";
 
-            cout << "Данные успешно сохранены в файл 'mydata.txt'\n";
-        }
-        file.close();
+        cout << "Данные успешно сохранены в файл 'mydata.txt'\n";
     }
     else {
-        cout << "Ошибка: не удалось открыть файл для записи.\n";
+        file << "Данные еще не были добавлены.\n";
+        cout << "Файл создан, но данные еще не добавлены.\n";
     }
+
+    file.close();
 }
 
 void Menu(Pipe& pipe, Compress& compstation) {
